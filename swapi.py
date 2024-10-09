@@ -5,11 +5,11 @@ from pathlib import Path
 class APIRequester:
 
     def __init__(self, base_url):
-        # Храним базовый URL API
+        # Базовый URL API
         self.base_url = base_url
 
     def get(self, url=''):
-        # Запрос к серверу Отправляем GET-запрос к API по указанному URL
+        # Запрос к серверу к API по указанному URL
         try:
             response = requests.get(self.base_url + url)
         # Обрабатываем возможные ошибки при отправке запроса
@@ -24,12 +24,12 @@ class APIRequester:
 class SWRequester(APIRequester):
 
     def get_sw_categories(self, url='/'):
-        # Получаем список категорий данных из API SWAPI
+        # Список категорий из API SWAPI
         response = self.get(url).json()
         return response.keys()
 
     def get_sw_info(self, sw_type):
-        # Получаем информацию о конкретной категории данных из API SWAPI
+        # Информация из API SWAPI
         response = self.get(f'/{sw_type}/')
         return response.text
 
