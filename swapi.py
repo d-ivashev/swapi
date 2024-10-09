@@ -2,46 +2,45 @@ import requests
 from pathlib import Path
 
 
-class APIRequester():
+class APIRequester:
 
-    def init(self, url=''):
-        self.base_url = url
-        self.page = {'page': 1}
+    def __init__(self, base_url):
+        # Храним базовый URL API
+        self.base_url = base_url
 
     def get(self, url=''):
-        send_url = self.base_url + url
+        # Запрос к серверу Отправляем GET-запрос к API по указанному URL
         try:
-            response = requests.get(send_url, params=self.page)
+            response = requests.get(self.base_url + url)
+        # Обрабатываем возможные ошибки при отправке запроса
+        # Проверяем сатутс ответа API
             response.raise_for_status()
+        # Возвращаем ответ API в виде объекта response
             return response
-        except requests.exceptions.RequestException:
+        except requests.RequestException:
             print('Возникла ошибка при выполнении запроса')
-            return False
 
 
 class SWRequester(APIRequester):
 
-    def init(self, url=''):
-        super().init(url)
-
     def get_sw_categories(self, url='/'):
-        try:
-            response = self.get(url)
-            response = response.json()
-            return response.keys()
-        except requests.exceptions.RequestException:
-            print('Ошибка при запросе категорий')
-            return False
+        # Получаем список категорий данных из API SWAPI
+        response = self.get(url).json()
+        return response.keys()
 
     def get_sw_info(self, sw_type):
-        url = f'/{sw_type}/'
-        response = self.get(url)
+        # Получаем информацию о конкретной категории данных из API SWAPI
+        response = self.get(f'/{sw_type}/')
         return response.text
 
 
 def save_sw_data():
     swapi = SWRequester('https://swapi.dev/api')
     Path('data').mkdir(exist_ok=True)
-    for i in swapi.get_sw_categories():
-        with open(f'data/{i}.txt', 'w+') as f:
-            f.write(swapi.get_sw_info(i))
+    for category in swapi.get_sw_categories():
+        with open(f'data/{category}.txt', 'w', encoding='utf-8') as file:
+            file.write(swapi.get_sw_info(category))
+
+
+if __name__ == '__main__':
+    save_sw_data()
